@@ -20,8 +20,22 @@ export const createApp = () => {
 
   app.set('trust proxy', 1);
 
-  // Security headers
-  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+  // Security headers.
+  // CSP is disabled because its default `upgrade-insecure-requests` directive
+  // rewrites every asset URL to https:// — which breaks plain-HTTP deployments
+  // (e.g. http://<ip>:5000) where the browser then fails with
+  // ERR_SSL_PROTOCOL_ERROR and renders a blank page. COOP / Origin-Agent-Cluster
+  // are HTTPS-only features and are turned off for the same reason. Re-enable
+  // these (set ENABLE_HTTPS_SECURITY=true) once the app is served over HTTPS.
+  const httpsSecurity = process.env.ENABLE_HTTPS_SECURITY === 'true';
+  app.use(
+    helmet({
+      contentSecurityPolicy: httpsSecurity,
+      crossOriginOpenerPolicy: httpsSecurity,
+      originAgentCluster: httpsSecurity,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    })
+  );
 
   // CORS
   const origins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : true;
