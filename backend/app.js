@@ -30,9 +30,10 @@ export const createApp = () => {
   const httpsSecurity = process.env.ENABLE_HTTPS_SECURITY === 'true';
   app.use(
     helmet({
-      contentSecurityPolicy: httpsSecurity,
+      contentSecurityPolicy: httpsSecurity, // off -> no `upgrade-insecure-requests`
       crossOriginOpenerPolicy: httpsSecurity,
       originAgentCluster: httpsSecurity,
+      hsts: httpsSecurity, // never advertise HSTS on a plain-HTTP origin
       crossOriginResourcePolicy: { policy: 'cross-origin' },
     })
   );
@@ -72,9 +73,12 @@ export const createApp = () => {
   const clientDist = path.join(__dirname, 'frontend', 'dist');
   if (fs.existsSync(path.join(clientDist, 'index.html'))) {
     app.use(express.static(clientDist));
-    app.get(/^(?!\/(api|uploads)\/).*/, (_req, res) =>
-      res.sendFile(path.join(clientDist, 'index.html'))
-    );
+    // Never cache index.html so security-header / build changes take effect on
+    // the next reload (hashed /assets files are immutable and cached normally).
+    app.get(/^(?!\/(api|uploads)\/).*/, (_req, res) => {
+      res.set('Cache-Control', 'no-store');
+      res.sendFile(path.join(clientDist, 'index.html'));
+    });
   } else {
     app.get('/', (_req, res) =>
       res.json({ success: true, message: 'HLG Task Management API', docs: '/api/health' })
