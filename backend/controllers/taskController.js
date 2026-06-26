@@ -4,7 +4,6 @@ import { TaskHistory } from '../models/TaskHistory.js';
 import { Comment } from '../models/Comment.js';
 import { Attachment } from '../models/Attachment.js';
 import { TimeLog } from '../models/TimeLog.js';
-import { User } from '../models/User.js';
 import { catchAsync } from '../utils/catchAsync.js';
 import { AppError } from '../utils/AppError.js';
 import { sendSuccess, sendPaginated } from '../utils/apiResponse.js';
@@ -37,6 +36,28 @@ const scopeForUser = (user) => {
       : {};
   }
   return { assignedTo: user._id };
+};
+
+/**
+ * Notify (in-app + email) the users newly assigned to a task. `task` must be
+ * populated (assignedTo with name+email). `newIds` is the list of user ids that
+ * were just added. Every assignee is emailed at their registered address.
+ */
+const notifyAssignees = async ({ req, task, newIds, type = NOTIFICATION_TYPES.ASSIGNMENT, title = 'You were assigned a task' }) => {
+  const ids = (newIds || []).map((x) => x.toString());
+  if (ids.length === 0) return;
+  const idSet = new Set(ids);
+  const users = (task.assignedTo || []).filter((u) => idSet.has((u._id || u).toString()));
+  await notify({
+    recipients: ids,
+    sender: req.user._id,
+    type,
+    title,
+    message: `${req.user.name} assigned you "${task.title}"`,
+    task: task._id,
+    link: `/tasks/${task._id}`,
+    email: { template: 'taskAssigned', users, task },
+  });
 };
 
 export const listTasks = catchAsync(async (req, res) => {
@@ -76,16 +97,12 @@ export const createTask = catchAsync(async (req, res, next) => {
 
   const assignees = (task.assignedTo || []).map((u) => u._id || u);
   if (assignees.length) {
-    const users = await User.find({ _id: { $in: assignees } }).select('name email');
-    await notify({
-      recipients: assignees,
-      sender: req.user._id,
+    await notifyAssignees({
+      req,
+      task,
+      newIds: assignees,
       type: NOTIFICATION_TYPES.NEW_TASK,
       title: 'New task assigned',
-      message: `${req.user.name} assigned you "${task.title}"`,
-      task: task._id,
-      link: `/tasks/${task._id}`,
-      email: users[0] ? { template: 'taskAssigned', user: users[0], task } : null,
     });
     emitToUsers(assignees, SOCKET_EVENTS.TASK_CREATED, task);
   }
@@ -100,6 +117,18 @@ export const updateTask = catchAsync(async (req, res, next) => {
 
   const tracked = ['title', 'description', 'priority', 'status', 'dueDate', 'estimatedHours', 'actualHours', 'department', 'tags'];
   const historyEntries = [];
+
+  // Assignee changes also flow through here (the edit form sends assignedTo).
+  let newlyAssigned = [];
+  if (Array.isArray(req.body.assignedTo)) {
+    const beforeIds = (task.assignedTo || []).map((x) => x.toString());
+    const afterIds = req.body.assignedTo.map((x) => x.toString());
+    if (JSON.stringify([...beforeIds].sort()) !== JSON.stringify([...afterIds].sort())) {
+      newlyAssigned = afterIds.filter((id) => !beforeIds.includes(id));
+      task.assignedTo = req.body.assignedTo;
+      historyEntries.push({ action: HISTORY_ACTIONS.ASSIGNED, field: 'assignedTo', from: beforeIds, to: afterIds });
+    }
+  }
 
   for (const field of tracked) {
     if (req.body[field] === undefined) continue;
@@ -156,6 +185,12 @@ export const updateTask = catchAsync(async (req, res, next) => {
     }
   }
 
+  // Email + in-app notify anyone newly assigned during this edit.
+  if (newlyAssigned.length) {
+    await notifyAssignees({ req, task, newIds: newlyAssigned });
+    emitToUsers(newlyAssigned, SOCKET_EVENTS.TASK_CREATED, task);
+  }
+
   emitToUsers([...assignees, task.assignedBy], SOCKET_EVENTS.TASK_UPDATED, task);
   return sendSuccess(res, { message: 'Task updated', data: { task } });
 });
@@ -206,17 +241,9 @@ export const assignTask = catchAsync(async (req, res, next) => {
     req,
   });
 
-  const newlyAdded = assignedTo.filter((id) => !before.includes(id.toString()));
+  const newlyAdded = assignedTo.map(String).filter((id) => !before.includes(id));
   if (newlyAdded.length) {
-    await notify({
-      recipients: newlyAdded,
-      sender: req.user._id,
-      type: NOTIFICATION_TYPES.ASSIGNMENT,
-      title: 'You were assigned a task',
-      message: `${req.user.name} assigned you "${task.title}"`,
-      task: task._id,
-      link: `/tasks/${task._id}`,
-    });
+    await notifyAssignees({ req, task, newIds: newlyAdded });
   }
   emitToUsers(assignedTo, SOCKET_EVENTS.TASK_UPDATED, task);
   return sendSuccess(res, { message: 'Task assigned', data: { task } });

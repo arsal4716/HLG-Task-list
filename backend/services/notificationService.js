@@ -36,12 +36,18 @@ export const notify = async ({
       emitToUser(doc.recipient.toString(), SOCKET_EVENTS.NOTIFICATION, doc);
     });
 
-    // best-effort email
+    // best-effort email — supports a single `email.user` or an `email.users[]`
+    // list so every assignee can be notified at their registered address.
     if (email && email.template && emailTemplates[email.template]) {
       const settings = await Settings.getSingleton();
-      if (settings.notificationSettings.email && email.user?.email) {
-        const tpl = emailTemplates[email.template](email.user, email.task || task || {});
-        sendEmail({ to: email.user.email, ...tpl });
+      if (settings.notificationSettings.email) {
+        const targets = (email.users || (email.user ? [email.user] : [])).filter(
+          (u) => u?.email && (!sender || (u._id || u).toString() !== sender.toString())
+        );
+        targets.forEach((u) => {
+          const tpl = emailTemplates[email.template](u, email.task || task || {});
+          sendEmail({ to: u.email, ...tpl });
+        });
       }
     }
 
