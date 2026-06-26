@@ -10,12 +10,12 @@ export const AuthShell = ({ title, subtitle, children }) => (
       </div>
       <div>
         <h1 className="text-4xl font-extrabold leading-tight">
-          Where work gets
-          <br /> done together.
+          Where the HLG team
+          <br /> gets work done.
         </h1>
         <p className="mt-4 max-w-md text-white/80">
-          The HLG team's command center for planning, assigning and delivering work —
-          with realtime collaboration, time tracking and performance insights in one place.
+          One workspace to plan and assign tasks, track time, collaborate in realtime
+          and measure performance — built for the HLG call center team.
         </p>
         <div className="mt-8 grid grid-cols-3 gap-4 text-center">
           {[

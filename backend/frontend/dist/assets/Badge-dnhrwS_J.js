@@ -1,0 +1,1 @@
+import{j as s,a7 as e,a8 as d,a2 as n}from"./index-ampcXvvw.js";const c=({status:a})=>s.jsx("span",{className:`badge ${n[a]||n.Pending}`,children:a}),g=({priority:a})=>s.jsxs("span",{className:`badge ${e[a]||e.Medium}`,children:[s.jsx("span",{className:`h-1.5 w-1.5 rounded-full ${d[a]||"bg-gray-400"}`}),a]});export{g as P,c as S};

@@ -2,7 +2,7 @@
 
 A complete, production-ready **internal task management system** for the HLG Team, built on the **MERN stack** (MongoDB, Express, React 19, Node.js) with realtime collaboration via Socket.io.
 
-> The HLG team's command center for planning, assigning and delivering work — with realtime collaboration, time tracking and performance insights in one place.
+> One workspace for the HLG call center team to plan and assign tasks, track time, collaborate in realtime and measure performance — all in one place.
 
 ---
 
