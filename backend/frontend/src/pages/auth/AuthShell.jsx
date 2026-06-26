@@ -3,19 +3,19 @@ import { motion } from 'framer-motion';
 /** Shared split-screen shell for auth pages. */
 export const AuthShell = ({ title, subtitle, children }) => (
   <div className="flex min-h-screen">
-    <div className="relative hidden w-1/2 flex-col justify-between bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 p-12 text-white lg:flex">
+    <div className="relative hidden w-1/2 flex-col justify-between bg-gradient-to-br from-brand-400 via-brand-600 to-brand-800 p-12 text-white lg:flex">
       <div className="flex items-center gap-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-lg font-bold">H</div>
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-lg font-bold backdrop-blur">H</div>
         <span className="text-lg font-bold">HLG Tasks</span>
       </div>
       <div>
         <h1 className="text-4xl font-extrabold leading-tight">
-          Run your team like
-          <br /> clockwork.
+          Where work gets
+          <br /> done together.
         </h1>
-        <p className="mt-4 max-w-md text-white/70">
-          Assign work, track time, hit deadlines and measure performance — all in one
-          internal workspace built for the HLG team.
+        <p className="mt-4 max-w-md text-white/80">
+          The HLG team's command center for planning, assigning and delivering work —
+          with realtime collaboration, time tracking and performance insights in one place.
         </p>
         <div className="mt-8 grid grid-cols-3 gap-4 text-center">
           {[

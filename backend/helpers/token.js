@@ -25,8 +25,11 @@ export const issueTokens = (user) => {
 
 export const refreshCookieOptions = () => ({
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  // 'lax' + secure-in-prod works for same-origin deployments over HTTP or HTTPS.
+  // (The client also persists the refresh token in localStorage as a fallback,
+  // so auth survives a page refresh even if the cookie is unavailable.)
+  secure: process.env.NODE_ENV === 'production' && process.env.COOKIE_SECURE !== 'false',
+  sameSite: 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   path: '/api/auth',
 });

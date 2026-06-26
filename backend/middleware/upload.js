@@ -46,10 +46,14 @@ const localStorage = multer.diskStorage({
     cb(null, `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`),
 });
 
+// 10MB — matches the Cloudinary free-tier per-file limit. Override via
+// MAX_UPLOAD_MB if you are on a higher plan.
+export const MAX_UPLOAD_BYTES = (parseInt(process.env.MAX_UPLOAD_MB, 10) || 10) * 1024 * 1024;
+
 export const upload = multer({
   storage: isCloudinaryConfigured() ? cloudStorage : localStorage,
   fileFilter,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  limits: { fileSize: MAX_UPLOAD_BYTES },
 });
 
 /** Normalise a multer file (cloud or local) into our attachment shape. */

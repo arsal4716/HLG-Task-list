@@ -36,7 +36,7 @@ body {
       disabled:cursor-not-allowed disabled:opacity-60;
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800;
+    @apply btn bg-brand-gradient text-white shadow-sm hover:brightness-105 active:brightness-95;
   }
   .btn-secondary {
     @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-100

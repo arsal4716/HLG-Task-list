@@ -1,6 +1,13 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { authService } from '../services/index.js';
-import { setAccessToken, getAccessToken } from '../lib/axios.js';
+import {
+  setAccessToken,
+  getAccessToken,
+  setRefreshToken,
+  getRefreshToken,
+  clearTokens,
+  requestRefresh,
+} from '../lib/axios.js';
 
 const AuthContext = createContext(null);
 
@@ -11,7 +18,11 @@ export const AuthProvider = ({ children }) => {
 
   const hydrate = useCallback(async () => {
     try {
-      // attempt to restore a session via the refresh-cookie path
+      // Restore the session on a fresh page load. If we have a stored refresh
+      // token, mint a new access token first so the very first /me succeeds.
+      if (!getAccessToken() && getRefreshToken()) {
+        await requestRefresh();
+      }
       const me = await authService.me();
       setUser(me.data.user);
       setPerformance(me.data.performance);
@@ -29,6 +40,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     const res = await authService.login(credentials);
     setAccessToken(res.data.accessToken);
+    setRefreshToken(res.data.refreshToken);
     setUser(res.data.user);
     await hydrate();
     return res;
@@ -37,6 +49,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (payload) => {
     const res = await authService.register(payload);
     setAccessToken(res.data.accessToken);
+    setRefreshToken(res.data.refreshToken);
     setUser(res.data.user);
     return res;
   };
@@ -47,7 +60,7 @@ export const AuthProvider = ({ children }) => {
     } catch {
       /* ignore */
     }
-    setAccessToken(null);
+    clearTokens();
     setUser(null);
     setPerformance(null);
   };

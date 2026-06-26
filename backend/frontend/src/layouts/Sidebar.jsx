@@ -32,7 +32,7 @@ export const Sidebar = ({ open, onClose }) => {
   const content = (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2 px-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-gradient text-white font-bold shadow-sm">
           H
         </div>
         <div>

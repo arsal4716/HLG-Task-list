@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import express from 'express';
 import helmet from 'helmet';
@@ -51,11 +52,22 @@ export const createApp = () => {
   // API
   app.use('/api', apiRoutes);
 
-  app.get('/', (_req, res) =>
-    res.json({ success: true, message: 'HLG Task Management API', docs: '/api/health' })
-  );
+  // Serve the built React SPA (frontend/dist) when present, so a single
+  // `npm start` runs the whole app from one origin. Everything that isn't an
+  // /api or /uploads request falls through to index.html for client routing.
+  const clientDist = path.join(__dirname, 'frontend', 'dist');
+  if (fs.existsSync(path.join(clientDist, 'index.html'))) {
+    app.use(express.static(clientDist));
+    app.get(/^(?!\/(api|uploads)\/).*/, (_req, res) =>
+      res.sendFile(path.join(clientDist, 'index.html'))
+    );
+  } else {
+    app.get('/', (_req, res) =>
+      res.json({ success: true, message: 'HLG Task Management API', docs: '/api/health' })
+    );
+  }
 
-  // 404 + error handling
+  // 404 (API) + error handling
   app.use(notFound);
   app.use(errorHandler);
 

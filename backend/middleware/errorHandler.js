@@ -22,6 +22,22 @@ export const errorHandler = (err, req, res, _next) => {
   else if (err.name === 'ValidationError') error = handleValidationError(err);
   else if (err.name === 'JsonWebTokenError') error = AppError.unauthorized('Invalid token.');
   else if (err.name === 'TokenExpiredError') error = AppError.unauthorized('Token expired.');
+  // Multer (local) file-size guard
+  else if (err.name === 'MulterError') {
+    error = AppError.badRequest(
+      err.code === 'LIMIT_FILE_SIZE'
+        ? 'File is too large. Maximum upload size is 10MB.'
+        : 'File upload failed. Please try again.'
+    );
+  }
+  // Cloudinary rejects oversized files / quota issues — never leak its raw message
+  else if (err.http_code || /file size too large|cloudinary/i.test(err.message || '')) {
+    error = AppError.badRequest(
+      /file size too large/i.test(err.message || '')
+        ? 'File is too large. Maximum upload size is 10MB.'
+        : 'Upload failed. Please try a smaller or different file.'
+    );
+  }
 
   const statusCode = error.statusCode || 500;
 

@@ -33,7 +33,7 @@ export const register = catchAsync(async (req, res, next) => {
   return sendSuccess(res, {
     statusCode: 201,
     message: 'Registration successful',
-    data: { user, accessToken },
+    data: { user, accessToken, refreshToken },
   });
 });
 
@@ -58,7 +58,7 @@ export const login = catchAsync(async (req, res, next) => {
   res.cookie('refreshToken', refreshToken, refreshCookieOptions());
   user.password = undefined;
   user.refreshTokens = undefined;
-  return sendSuccess(res, { message: 'Login successful', data: { user, accessToken } });
+  return sendSuccess(res, { message: 'Login successful', data: { user, accessToken, refreshToken } });
 });
 
 /** Rotate the refresh token and issue a fresh access token. */
@@ -85,7 +85,7 @@ export const refresh = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   res.cookie('refreshToken', refreshToken, refreshCookieOptions());
-  return sendSuccess(res, { message: 'Token refreshed', data: { accessToken } });
+  return sendSuccess(res, { message: 'Token refreshed', data: { accessToken, refreshToken } });
 });
 
 export const logout = catchAsync(async (req, res) => {

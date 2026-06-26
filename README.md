@@ -2,7 +2,7 @@
 
 A complete, production-ready **internal task management system** for the HLG Team, built on the **MERN stack** (MongoDB, Express, React 19, Node.js) with realtime collaboration via Socket.io.
 
-> Assign work, track time, hit deadlines, and measure performance — all in one internal workspace.
+> The HLG team's command center for planning, assigning and delivering work — with realtime collaboration, time tracking and performance insights in one place.
 
 ---
 
@@ -44,19 +44,24 @@ HLG-Task-list/
 │   ├── services/      # email, notifications, history, performance, time
 │   ├── sockets/       # Socket.io server, auth, handlers
 │   ├── utils/         # logger, AppError, catchAsync, seeder
-│   ├── app.js         # express app factory
-│   └── server.js      # entrypoint (http + sockets + cron)
-└── frontend/
-    └── src/
-        ├── components/  # ui primitives, task & dashboard widgets
-        ├── contexts/    # Auth, Theme, Socket
-        ├── hooks/       # useDebounce, useTimer
-        ├── layouts/     # Sidebar, Navbar, AppLayout
-        ├── lib/         # axios client w/ refresh interceptor
-        ├── pages/       # route screens
-        ├── services/    # API wrappers
-        └── utils/       # constants, formatters
+│   ├── app.js         # express app factory (also serves the built SPA)
+│   ├── server.js      # entrypoint (http + sockets + cron)
+│   └── frontend/      # React app — bundled & served by the backend
+│       ├── dist/      # production build (served at /)
+│       └── src/
+│           ├── components/  # ui primitives, task & dashboard widgets
+│           ├── contexts/    # Auth, Theme, Socket
+│           ├── hooks/       # useDebounce, useTimer
+│           ├── layouts/     # Sidebar, Navbar, AppLayout
+│           ├── lib/         # axios client w/ refresh interceptor
+│           ├── pages/       # route screens
+│           ├── services/    # API wrappers
+│           └── utils/       # constants, formatters
 ```
+
+> The frontend lives **inside** `backend/frontend`. In production the Express
+> server serves `backend/frontend/dist`, so the whole app runs from a **single
+> process / single origin** — no separate web server or CORS config needed.
 
 ---
 
@@ -67,15 +72,22 @@ HLG-Task-list/
 - MongoDB (local or Atlas)
 - (Optional) Cloudinary account for file uploads, SMTP creds for email
 
-### 1. Backend
+### 🚢 Production / deploy (single command)
+
+Everything runs from `backend/`. The repo already ships a prebuilt
+`backend/frontend/dist`, so deployment is just:
 
 ```bash
 cd backend
-cp .env.example .env          # then fill in the values
+cp .env.example .env          # set MONGO_URI, JWT secrets, etc.
 npm install
 npm run seed                  # optional: demo users + tasks
-npm run dev                   # starts on http://localhost:5000
+npm start                     # serves API + UI on http://localhost:5000
 ```
+
+Open **http://localhost:5000** — the React app and API are served from the same
+origin. To rebuild the UI after changing frontend source, run `npm run build`
+(installs + builds `frontend/dist`).
 
 **Seeded logins** (after `npm run seed`):
 
@@ -85,13 +97,16 @@ npm run dev                   # starts on http://localhost:5000
 | Manager | `manager@hlg.com` | `Manager@123` |
 | Employee | `eva@hlg.com` | `Employee@123` |
 
-### 2. Frontend
+### 🧑‍💻 Local development (hot reload)
+
+Run the API and the Vite dev server separately:
 
 ```bash
-cd frontend
-cp .env.example .env          # optional — dev proxy works out of the box
-npm install
-npm run dev                   # starts on http://localhost:5173
+# terminal 1 — API
+cd backend && npm run dev          # http://localhost:5000
+
+# terminal 2 — UI with HMR
+cd backend/frontend && npm install && npm run dev   # http://localhost:5173
 ```
 
 The Vite dev server proxies `/api` and `/uploads` to the backend, so no CORS setup is required in development.
