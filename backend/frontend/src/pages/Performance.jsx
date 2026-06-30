@@ -13,7 +13,7 @@ import { errMessage } from '../lib/axios.js';
 const scoreColor = (s) => (s >= 75 ? 'text-green-600' : s >= 50 ? 'text-amber-600' : 'text-red-600');
 
 const Performance = () => {
-  const { user } = useAuth();
+  const { role } = useAuth();
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ['performance'], queryFn: () => performanceService.list() });
 
@@ -35,7 +35,7 @@ const Performance = () => {
         title="Performance"
         subtitle="Weighted score: 40% completion · 30% on-time · 20% quality · 10% attendance"
         actions={
-          user?.role === ROLES.OWNER && (
+          role === ROLES.OWNER && (
             <button className="btn-secondary" onClick={() => recalc.mutate()} disabled={recalc.isPending}>
               <FiRefreshCw className={`h-4 w-4 ${recalc.isPending ? 'animate-spin' : ''}`} /> Recalculate
             </button>

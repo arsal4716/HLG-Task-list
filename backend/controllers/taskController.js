@@ -13,6 +13,7 @@ import { notify } from '../services/notificationService.js';
 import { calculateUserPerformance } from '../services/performanceService.js';
 import { normaliseFile } from '../middleware/upload.js';
 import { emitToUsers, broadcast } from '../sockets/io.js';
+import { getEffectiveRole } from '../helpers/access.js';
 import {
   ROLES,
   TASK_STATUS,
@@ -27,10 +28,14 @@ const POPULATE = [
   { path: 'department', select: 'name color' },
 ];
 
-/** Employees only see tasks they're assigned to or created. */
+/**
+ * Visibility scope. Owner (and IT-department users, who are elevated to Owner)
+ * see everything; Managers see their department; Employees see only their own.
+ */
 const scopeForUser = (user) => {
-  if (user.role === ROLES.OWNER) return {};
-  if (user.role === ROLES.MANAGER) {
+  const role = getEffectiveRole(user);
+  if (role === ROLES.OWNER) return {};
+  if (role === ROLES.MANAGER) {
     return user.department
       ? { $or: [{ department: user.department._id || user.department }, { assignedBy: user._id }, { assignedTo: user._id }] }
       : {};

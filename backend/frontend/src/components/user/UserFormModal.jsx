@@ -10,7 +10,7 @@ import { errMessage } from '../../lib/axios.js';
 
 export const UserFormModal = ({ open, onClose, editUser }) => {
   const isEdit = !!editUser;
-  const { user } = useAuth();
+  const { role } = useAuth();
   const queryClient = useQueryClient();
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
@@ -46,7 +46,7 @@ export const UserFormModal = ({ open, onClose, editUser }) => {
     save.mutate(payload);
   };
 
-  const roleOptions = user?.role === ROLES.OWNER ? Object.values(ROLES) : [ROLES.EMPLOYEE];
+  const roleOptions = role === ROLES.OWNER ? Object.values(ROLES) : [ROLES.EMPLOYEE];
 
   return (
     <Modal open={open} onClose={onClose} title={isEdit ? 'Edit Team Member' : 'Add Team Member'} size="md">

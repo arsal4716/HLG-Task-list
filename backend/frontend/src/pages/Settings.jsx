@@ -4,15 +4,21 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import { settingsService, departmentService } from '../services/index.js';
+import { useAuth } from '../contexts/AuthContext.jsx';
 import { PageHeader } from '../components/ui/PageHeader.jsx';
 import { PageLoader } from '../components/ui/Spinner.jsx';
 import { fmtDate } from '../utils/format.js';
+import { ROLES } from '../utils/constants.js';
 import { errMessage } from '../lib/axios.js';
 
-const TABS = ['Departments', 'Holidays', 'Company', 'Performance'];
+// Owners configure everything; Managers can only manage Holidays.
+const OWNER_TABS = ['Departments', 'Holidays', 'Company', 'Performance'];
+const MANAGER_TABS = ['Holidays'];
 
 const Settings = () => {
-  const [tab, setTab] = useState('Departments');
+  const { role } = useAuth();
+  const TABS = role === ROLES.OWNER ? OWNER_TABS : MANAGER_TABS;
+  const [tab, setTab] = useState(TABS[0]);
   return (
     <div>
       <PageHeader title="Settings" subtitle="Configure your workspace." />

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { authService } from '../services/index.js';
+import { effectiveRole, canManageRole } from '../utils/constants.js';
 import {
   setAccessToken,
   getAccessToken,
@@ -77,6 +78,8 @@ export const AuthProvider = ({ children }) => {
     performance,
     loading,
     isAuthenticated: !!user,
+    role: effectiveRole(user), // effective role (IT dept -> Owner)
+    isManager: canManageRole(user),
     token: getAccessToken(),
     login,
     register,

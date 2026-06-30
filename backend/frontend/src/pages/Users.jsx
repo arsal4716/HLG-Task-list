@@ -24,7 +24,7 @@ const roleBadge = {
 };
 
 const Users = () => {
-  const { user } = useAuth();
+  const { role } = useAuth();
   const { isUserOnline } = useSocket();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -114,7 +114,7 @@ const Users = () => {
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1">
                         <button onClick={() => openEdit(u)} className="btn-ghost p-1.5"><FiEdit2 className="h-4 w-4" /></button>
-                        {user?.role === ROLES.OWNER && u.role !== ROLES.OWNER && (
+                        {role === ROLES.OWNER && u.role !== ROLES.OWNER && (
                           <button onClick={() => setDeleteTarget(u)} className="btn-ghost p-1.5 text-red-500"><FiTrash2 className="h-4 w-4" /></button>
                         )}
                       </div>

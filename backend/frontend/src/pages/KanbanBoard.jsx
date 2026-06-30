@@ -12,12 +12,12 @@ import { KANBAN_COLUMNS, ROLES, STATUS_STYLES } from '../utils/constants.js';
 import { errMessage } from '../lib/axios.js';
 
 const KanbanBoard = () => {
-  const { user } = useAuth();
+  const { isManager } = useAuth();
   const queryClient = useQueryClient();
   const [dragId, setDragId] = useState(null);
   const [overCol, setOverCol] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const canManage = [ROLES.OWNER, ROLES.MANAGER].includes(user?.role);
+  const canManage = isManager;
 
   const { data, isLoading } = useQuery({
     queryKey: ['tasks', { board: true }],

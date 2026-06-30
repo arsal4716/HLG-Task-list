@@ -78,6 +78,19 @@ export const NOTIFICATION_TYPES = Object.freeze({
   REVIEW_REQUIRED: 'Review Required',
 });
 
+export const ENTITY_STATUS = Object.freeze({
+  ACTIVE: 'Active',
+  PAUSED: 'Paused',
+});
+export const ENTITY_STATUS_VALUES = Object.values(ENTITY_STATUS);
+
+export const PERFORMANCE_RATING = Object.freeze({
+  GOOD: 'Good',
+  AVERAGE: 'Average',
+  BAD: 'Bad',
+});
+export const PERFORMANCE_RATING_VALUES = Object.values(PERFORMANCE_RATING);
+
 export const SOCKET_EVENTS = Object.freeze({
   NOTIFICATION: 'notification:new',
   TASK_CREATED: 'task:created',

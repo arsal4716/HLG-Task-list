@@ -9,6 +9,7 @@ import {
   FiBarChart2,
   FiAward,
   FiSettings,
+  FiBriefcase,
   FiX,
 } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext.jsx';
@@ -19,15 +20,16 @@ const NAV = [
   { to: '/tasks', label: 'Tasks', icon: FiCheckSquare },
   { to: '/board', label: 'Kanban', icon: FiColumns },
   { to: '/calendar', label: 'Calendar', icon: FiCalendar },
+  { to: '/buyers', label: 'Buyers', icon: FiBriefcase, roles: [ROLES.OWNER, ROLES.MANAGER] },
   { to: '/users', label: 'Team', icon: FiUsers, roles: [ROLES.OWNER, ROLES.MANAGER] },
   { to: '/reports', label: 'Reports', icon: FiBarChart2, roles: [ROLES.OWNER, ROLES.MANAGER] },
   { to: '/performance', label: 'Performance', icon: FiAward, roles: [ROLES.OWNER, ROLES.MANAGER] },
-  { to: '/settings', label: 'Settings', icon: FiSettings, roles: [ROLES.OWNER] },
+  { to: '/settings', label: 'Settings', icon: FiSettings, roles: [ROLES.OWNER, ROLES.MANAGER] },
 ];
 
 export const Sidebar = ({ open, onClose }) => {
-  const { user } = useAuth();
-  const items = NAV.filter((n) => !n.roles || n.roles.includes(user?.role));
+  const { role } = useAuth();
+  const items = NAV.filter((n) => !n.roles || n.roles.includes(role));
 
   const content = (
     <div className="flex h-full flex-col">

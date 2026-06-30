@@ -15,9 +15,9 @@ import { TASK_STATUS, TASK_PRIORITY, ROLES } from '../utils/constants.js';
 import { errMessage } from '../lib/axios.js';
 
 const Tasks = () => {
-  const { user } = useAuth();
+  const { isManager } = useAuth();
   const queryClient = useQueryClient();
-  const canManage = [ROLES.OWNER, ROLES.MANAGER].includes(user?.role);
+  const canManage = isManager;
 
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ status: '', priority: '', department: '', sort: '-createdAt' });

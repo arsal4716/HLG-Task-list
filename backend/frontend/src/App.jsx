@@ -17,6 +17,7 @@ const Tasks = lazy(() => import('./pages/Tasks.jsx'));
 const TaskDetail = lazy(() => import('./pages/TaskDetail.jsx'));
 const KanbanBoard = lazy(() => import('./pages/KanbanBoard.jsx'));
 const Calendar = lazy(() => import('./pages/Calendar.jsx'));
+const Buyers = lazy(() => import('./pages/Buyers.jsx'));
 const Users = lazy(() => import('./pages/Users.jsx'));
 const UserProfile = lazy(() => import('./pages/UserProfile.jsx'));
 const Reports = lazy(() => import('./pages/Reports.jsx'));
@@ -59,6 +60,14 @@ const App = () => (
         />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route
+          path="/buyers"
+          element={
+            <ProtectedRoute roles={[ROLES.OWNER, ROLES.MANAGER]}>
+              <Buyers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/reports"
           element={
             <ProtectedRoute roles={[ROLES.OWNER, ROLES.MANAGER]}>
@@ -77,7 +86,7 @@ const App = () => (
         <Route
           path="/settings"
           element={
-            <ProtectedRoute roles={[ROLES.OWNER]}>
+            <ProtectedRoute roles={[ROLES.OWNER, ROLES.MANAGER]}>
               <Settings />
             </ProtectedRoute>
           }

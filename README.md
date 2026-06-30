@@ -10,7 +10,8 @@ A complete, production-ready **internal task management system** for the HLG Tea
 
 | Area | Highlights |
 | --- | --- |
-| **Auth** | JWT access + refresh-token rotation, role-based access (Owner / Manager / Employee), password reset via email |
+| **Auth** | JWT access + refresh-token rotation, role-based access (Owner / Manager / Employee), password reset via email. **IT-department users are elevated to full (Owner-level) access** regardless of their role. |
+| **Buyers → Campaigns → Publishers** | Hierarchical database: each Buyer is a parent record owning unlimited Campaigns (Module, Payment Terms, Contact, Phone, Status); each Campaign owns Publishers (Payout, Payment Terms, Email, Status, Performance). Cascade delete. |
 | **Tasks** | Full CRUD, assign / reassign, duplicate, archive / restore, soft + hard delete, bulk operations (delete / status / priority / assign), checklist, tags |
 | **Kanban** | Drag-and-drop board with optimistic updates |
 | **Comments** | Text, code blocks, file attachments, @mentions, replies, edit / delete — realtime |

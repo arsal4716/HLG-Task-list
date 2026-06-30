@@ -2,6 +2,7 @@ import { Task } from '../models/Task.js';
 import { Holiday } from '../models/Holiday.js';
 import { catchAsync } from '../utils/catchAsync.js';
 import { sendSuccess } from '../utils/apiResponse.js';
+import { getEffectiveRole } from '../helpers/access.js';
 import { ROLES } from '../config/constants.js';
 
 /** Returns tasks (by due date) + holidays for a month/week/day window. */
@@ -13,9 +14,10 @@ export const getCalendar = catchAsync(async (req, res) => {
   const start = new Date(year, month, 1);
   const end = new Date(year, month + 1, 0, 23, 59, 59);
 
+  const role = getEffectiveRole(req.user);
   const filter = { isDeleted: false, dueDate: { $gte: start, $lte: end } };
-  if (req.user.role === ROLES.EMPLOYEE) filter.assignedTo = req.user._id;
-  else if (req.user.role === ROLES.MANAGER && req.user.department) {
+  if (role === ROLES.EMPLOYEE) filter.assignedTo = req.user._id;
+  else if (role === ROLES.MANAGER && req.user.department) {
     filter.department = req.user.department._id || req.user.department;
   }
 

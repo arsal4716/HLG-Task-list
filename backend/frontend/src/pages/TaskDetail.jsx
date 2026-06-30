@@ -34,7 +34,7 @@ const TaskDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { isManager } = useAuth();
   const { socket } = useSocket();
   const [tab, setTab] = useState('Comments');
   const [editing, setEditing] = useState(false);
@@ -46,7 +46,7 @@ const TaskDetail = () => {
   });
   const task = data?.data?.task;
 
-  const canManage = [ROLES.OWNER, ROLES.MANAGER].includes(user?.role);
+  const canManage = isManager;
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['task', id] });
     queryClient.invalidateQueries({ queryKey: ['tasks'] });

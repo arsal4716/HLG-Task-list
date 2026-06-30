@@ -6,6 +6,7 @@ import { Performance } from '../models/Performance.js';
 import { TimeLog } from '../models/TimeLog.js';
 import { catchAsync } from '../utils/catchAsync.js';
 import { sendSuccess } from '../utils/apiResponse.js';
+import { getEffectiveRole } from '../helpers/access.js';
 import { ROLES, TASK_STATUS, TASK_PRIORITY } from '../config/constants.js';
 
 const openStatuses = [
@@ -34,7 +35,7 @@ const priorityBreakdown = async (match) => {
 
 /** Owner: company-wide. Manager: department-scoped. Employee: personal. */
 export const getDashboard = catchAsync(async (req, res) => {
-  const { role } = req.user;
+  const role = getEffectiveRole(req.user);
 
   if (role === ROLES.OWNER) return ownerDashboard(req, res);
   if (role === ROLES.MANAGER) return managerDashboard(req, res);

@@ -10,6 +10,9 @@ import dashboardRoutes from './dashboardRoutes.js';
 import reportRoutes from './reportRoutes.js';
 import performanceRoutes from './performanceRoutes.js';
 import settingsRoutes from './settingsRoutes.js';
+import buyerRoutes from './buyerRoutes.js';
+import campaignRoutes from './campaignRoutes.js';
+import publisherRoutes from './publisherRoutes.js';
 
 const router = Router();
 
@@ -28,5 +31,8 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/reports', reportRoutes);
 router.use('/performance', performanceRoutes);
 router.use('/settings', settingsRoutes);
+router.use('/buyers', buyerRoutes);
+router.use('/campaigns', campaignRoutes);
+router.use('/publishers', publisherRoutes);
 
 export default router;

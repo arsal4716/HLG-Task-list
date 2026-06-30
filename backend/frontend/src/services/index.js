@@ -106,3 +106,28 @@ export const settingsService = {
   addHoliday: (payload) => api.post('/settings/holidays', payload).then((r) => r.data),
   removeHoliday: (id) => api.delete(`/settings/holidays/${id}`).then((r) => r.data),
 };
+
+export const buyerService = {
+  list: (params) => api.get('/buyers', { params }).then((r) => r.data),
+  get: (id) => api.get(`/buyers/${id}`).then((r) => r.data),
+  create: (payload) => api.post('/buyers', payload).then((r) => r.data),
+  update: (id, payload) => api.patch(`/buyers/${id}`, payload).then((r) => r.data),
+  remove: (id) => api.delete(`/buyers/${id}`).then((r) => r.data),
+  campaigns: (buyerId) => api.get(`/buyers/${buyerId}/campaigns`).then((r) => r.data),
+  createCampaign: (buyerId, payload) =>
+    api.post(`/buyers/${buyerId}/campaigns`, payload).then((r) => r.data),
+};
+
+export const campaignService = {
+  get: (id) => api.get(`/campaigns/${id}`).then((r) => r.data),
+  update: (id, payload) => api.patch(`/campaigns/${id}`, payload).then((r) => r.data),
+  remove: (id) => api.delete(`/campaigns/${id}`).then((r) => r.data),
+  publishers: (campaignId) => api.get(`/campaigns/${campaignId}/publishers`).then((r) => r.data),
+  createPublisher: (campaignId, payload) =>
+    api.post(`/campaigns/${campaignId}/publishers`, payload).then((r) => r.data),
+};
+
+export const publisherService = {
+  update: (id, payload) => api.patch(`/publishers/${id}`, payload).then((r) => r.data),
+  remove: (id) => api.delete(`/publishers/${id}`).then((r) => r.data),
+};

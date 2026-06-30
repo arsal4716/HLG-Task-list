@@ -1,5 +1,18 @@
 export const ROLES = { OWNER: 'Owner', MANAGER: 'Manager', EMPLOYEE: 'Employee' };
 
+/**
+ * IT-department users are elevated to Owner-level access (they run the system),
+ * while their displayed role stays as-is. Use these for all permission gating.
+ */
+export const isITDept = (user) =>
+  (user?.department?.name || '').trim().toLowerCase() === 'it';
+
+export const effectiveRole = (user) =>
+  user ? (isITDept(user) ? ROLES.OWNER : user.role) : null;
+
+export const canManageRole = (user) =>
+  [ROLES.OWNER, ROLES.MANAGER].includes(effectiveRole(user));
+
 export const TASK_STATUS = {
   PENDING: 'Pending',
   IN_PROGRESS: 'In Progress',
