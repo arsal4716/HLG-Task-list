@@ -7,8 +7,9 @@ export const ROLES = { OWNER: 'Owner', MANAGER: 'Manager', EMPLOYEE: 'Employee' 
 export const isITDept = (user) =>
   (user?.department?.name || '').trim().toLowerCase() === 'it';
 
+// Prefer the backend-computed effectiveRole; fall back to client detection.
 export const effectiveRole = (user) =>
-  user ? (isITDept(user) ? ROLES.OWNER : user.role) : null;
+  user ? user.effectiveRole || (isITDept(user) ? ROLES.OWNER : user.role) : null;
 
 export const canManageRole = (user) =>
   [ROLES.OWNER, ROLES.MANAGER].includes(effectiveRole(user));

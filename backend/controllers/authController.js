@@ -6,7 +6,19 @@ import { AppError } from '../utils/AppError.js';
 import { sendSuccess } from '../utils/apiResponse.js';
 import { issueTokens, verifyRefreshToken, refreshCookieOptions } from '../helpers/token.js';
 import { sendEmail, emailTemplates } from '../services/emailService.js';
+import { getEffectiveRole, isOwnerLike } from '../helpers/access.js';
 import { ROLES, USER_STATUS } from '../config/constants.js';
+
+/**
+ * Serialize a user with its *effective* role attached, so the client never has
+ * to recompute IT-department elevation itself. `userDoc` should have its
+ * `department` populated for the elevation to be detected.
+ */
+const withAccess = (userDoc) => ({
+  ...userDoc.toJSON(),
+  effectiveRole: getEffectiveRole(userDoc),
+  isElevated: isOwnerLike(userDoc),
+});
 
 /**
  * Register. The first ever user becomes the Owner; subsequent self-registrations
@@ -40,7 +52,9 @@ export const register = catchAsync(async (req, res, next) => {
 export const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email }).select('+password +refreshTokens');
+  const user = await User.findOne({ email })
+    .select('+password +refreshTokens')
+    .populate('department', 'name color');
   if (!user || !(await user.comparePassword(password))) {
     return next(AppError.unauthorized('Invalid email or password'));
   }
@@ -58,7 +72,10 @@ export const login = catchAsync(async (req, res, next) => {
   res.cookie('refreshToken', refreshToken, refreshCookieOptions());
   user.password = undefined;
   user.refreshTokens = undefined;
-  return sendSuccess(res, { message: 'Login successful', data: { user, accessToken, refreshToken } });
+  return sendSuccess(res, {
+    message: 'Login successful',
+    data: { user: withAccess(user), accessToken, refreshToken },
+  });
 });
 
 /** Rotate the refresh token and issue a fresh access token. */
@@ -99,7 +116,7 @@ export const logout = catchAsync(async (req, res) => {
 
 export const getMe = catchAsync(async (req, res) => {
   const performance = await Performance.findOne({ user: req.user._id });
-  return sendSuccess(res, { data: { user: req.user, performance } });
+  return sendSuccess(res, { data: { user: withAccess(req.user), performance } });
 });
 
 export const updateMe = catchAsync(async (req, res, next) => {
